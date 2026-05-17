@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RYNA AI — Your Intelligent Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  :root {
+    --bg: #080b14;
+    --bg2: #0d1220;
+    --bg3: #121828;
+    --surface: #161d2e;
+    --surface2: #1c2540;
+    --border: #1e2a45;
+    --border2: #253354;
+    --accent: #4f8eff;
+    --accent2: #6aa3ff;
+    --accent-glow: rgba(79,142,255,0.18);
+    --green: #3ecf8e;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --orange: #fb923c;
+    --text: #e8edf5;
+    --text2: #8fa3c8;
+    --text3: #4a6080;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --sidebar: 270px;
+    --font: 'DM Sans', sans-serif;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.65;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(79,142,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,142,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar);
+    min-width: var(--sidebar);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px var(--accent-glow);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(79,142,255,0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+    text-transform: uppercase;
+  }
+
+  .new-chat-btn {
+    margin: 14px 14px 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, var(--accent), #3b6fd4);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(79,142,255,0.3);
+  }
+  .new-chat-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,142,255,0.4); }
+
+  .sidebar-section {
+    padding: 6px 10px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+
+  .chat-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .chat-item {
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .chat-item:hover { background: var(--surface); color: var(--text); }
+  .chat-item.active { background: var(--surface2); color: var(--text); }
+  .chat-item .ci-icon { font-size: 14px; flex-shrink: 0; opacity: 0.7; }
+
+  .sidebar-footer {
+    padding: 14px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .mode-tabs {
+    display: flex; gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+
+  .mode-tab {
+    flex: 1;
+    padding: 6px 4px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text3);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+  .mode-tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .mode-tab:hover:not(.active) { color: var(--text2); }
+
+  .status-dot {
+    width: 22px; height: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .status-info { flex: 1; }
+  .status-info .s-name { font-size: 12px; font-weight: 600; }
+  .status-info .s-model { font-size: 10px; color: var(--text3); }
+
+  /* ── MAIN AREA ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: 54px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    background: rgba(8,11,20,0.8);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+  }
+
+  .menu-btn {
+    display: none;
+    width: 32px; height: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text2);
+  }
+
+  .topbar-title {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .topbar-actions { display: flex; gap: 8px; }
+
+  .tb-btn {
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: all 0.15s;
+  }
+  .tb-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .model-select {
+    padding: 6px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    font-family: var(--font);
+  }
+  .model-select:focus { border-color: var(--accent); }
+  .model-select option { background: var(--bg2); }
+
+  /* ── CHAT AREA ── */
+  #chat-view, #image-view, #code-view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  #chat-view.active, #image-view.active, #code-view.active { display: flex; }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  /* ── WELCOME SCREEN ── */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .welcome-glow {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 60px rgba(79,142,255,0.3), 0 0 120px rgba(79,142,255,0.1);
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 60px rgba(79,142,255,0.3), 0 0 120px rgba(79,142,255,0.1); }
+    50% { box-shadow: 0 0 80px rgba(79,142,255,0.5), 0 0 160px rgba(79,142,255,0.2); }
+  }
+
+  .welcome h1 {
+    font-family: var(--font-head);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 40%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .welcome p {
+    color: var(--text2);
+    font-size: 15px;
+    max-width: 460px;
+    margin-bottom: 36px;
+  }
+
+  .suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .suggestion-card {
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .suggestion-card:hover { border-color: var(--accent); background: var(--surface2); transform: translateY(-2px); }
+  .sc-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .sc-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .sc-desc { font-size: 11px; color: var(--text3); line-height: 1.4; }
+
+  /* ── MESSAGE BUBBLES ── */
+  .msg-wrapper {
+    padding: 4px 20px;
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .msg-wrapper.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .msg-avatar.ai { background: linear-gradient(135deg, var(--accent), var(--purple)); box-shadow: 0 0 12px var(--accent-glow); }
+  .msg-avatar.user { background: var(--surface2); border: 1px solid var(--border2); }
+
+  .msg-content {
+    max-width: 72%;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .msg-wrapper.user .msg-content { align-items: flex-end; }
+
+  .msg-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.3px;
+  }
+
+  .msg-bubble {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    line-height: 1.7;
+    font-size: 14px;
+    position: relative;
+  }
+
+  .msg-wrapper.user .msg-bubble {
+    background: linear-gradient(135deg, var(--accent), #3b6fd4);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg-wrapper.ai .msg-bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Markdown styles inside bubble */
+  .msg-bubble h1,.msg-bubble h2,.msg-bubble h3 {
+    font-family: var(--font-head);
+    margin: 12px 0 6px;
+    color: var(--text);
+  }
+  .msg-bubble h1 { font-size: 18px; } .msg-bubble h2 { font-size: 16px; } .msg-bubble h3 { font-size: 14px; }
+  .msg-bubble p { margin-bottom: 8px; }
+  .msg-bubble p:last-child { margin-bottom: 0; }
+  .msg-bubble ul, .msg-bubble ol { padding-left: 20px; margin-bottom: 8px; }
+  .msg-bubble li { margin-bottom: 4px; }
+  .msg-bubble code:not(pre code) {
+    background: rgba(79,142,255,0.15);
+    border: 1px solid rgba(79,142,255,0.2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent2);
+  }
+  .msg-bubble pre {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    overflow-x: auto;
+    margin: 10px 0;
+    position: relative;
+  }
+  .msg-bubble pre code { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; }
+
+  .copy-code-btn {
+    position: absolute;
+    top: 8px; right: 8px;
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    color: var(--text2);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .copy-code-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .msg-bubble table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 13px; }
+  .msg-bubble th { background: var(--surface2); padding: 8px 12px; text-align: left; border: 1px solid var(--border); font-weight: 600; }
+  .msg-bubble td { padding: 7px 12px; border: 1px solid var(--border); }
+  .msg-bubble blockquote { border-left: 3px solid var(--accent); padding-left: 12px; color: var(--text2); margin: 8px 0; }
+
+  .msg-actions {
+    display: flex; gap: 6px;
+    margin-top: 4px;
+  }
+  .msg-action-btn {
+    padding: 3px 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text3);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .msg-action-btn:hover { border-color: var(--border2); color: var(--text2); }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex; gap: 5px; align-items: center;
+    padding: 14px 16px;
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: typing-bounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing-bounce { 0%,80%,100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-6px); opacity: 1; } }
+
+  /* ── INPUT AREA ── */
+  .input-area {
+    padding: 14px 20px 18px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .input-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .input-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .input-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .input-toolbar {
+    display: flex; align-items: center;
+    padding: 8px 12px 0;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .tool-pill {
+    padding: 4px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text3);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+    transition: all 0.15s;
+  }
+  .tool-pill:hover, .tool-pill.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+  #user-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    padding: 10px 14px;
+    resize: none;
+    max-height: 160px;
+    line-height: 1.6;
+  }
+  #user-input::placeholder { color: var(--text3); }
+
+  .input-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 12px 10px;
+  }
+
+  .input-hint { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 8px; }
+  .kbd { padding: 1px 5px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; font-family: var(--font-mono); font-size: 10px; }
+
+  .send-btn {
+    padding: 8px 18px;
+    background: linear-gradient(135deg, var(--accent), #3b6fd4);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(79,142,255,0.25);
+  }
+  .send-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,142,255,0.4); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── IMAGE VIEW ── */
+  .image-gen-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    overflow-y: auto;
+    gap: 24px;
+  }
+
+  .image-gen-header {
+    text-align: center;
+  }
+  .image-gen-header h2 { font-family: var(--font-head); font-size: 24px; font-weight: 800; }
+  .image-gen-header p { color: var(--text2); font-size: 14px; margin-top: 6px; }
+
+  .image-prompt-bar {
+    width: 100%; max-width: 680px;
+    display: flex; gap: 10px;
+  }
+
+  .image-prompt-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .image-prompt-input:focus { border-color: var(--accent); }
+  .image-prompt-input::placeholder { color: var(--text3); }
+
+  .img-gen-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--purple), #7c3aed);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(167,139,250,0.3);
+    white-space: nowrap;
+  }
+  .img-gen-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(167,139,250,0.45); }
+  .img-gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .style-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    max-width: 680px;
+    justify-content: center;
+  }
+  .style-chip {
+    padding: 5px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .style-chip:hover, .style-chip.active { border-color: var(--purple); color: var(--purple); background: rgba(167,139,250,0.1); }
+
+  .image-result {
+    max-width: 680px;
+    width: 100%;
+  }
+
+  .img-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .img-card img {
+    width: 100%;
+    display: block;
+  }
+
+  .img-card-actions {
+    padding: 12px 16px;
+    display: flex; gap: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .img-loading {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 300px;
+    gap: 16px;
+    color: var(--text2);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── CODE VIEW ── */
+  .code-area {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+
+  .code-panel {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .code-panel-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg2);
+    font-size: 12px; font-weight: 600; color: var(--text2);
+  }
+
+  .lang-select {
+    padding: 4px 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text2);
+    font-size: 11px;
+    outline: none;
+    cursor: pointer;
+    font-family: var(--font);
+    margin-left: auto;
+  }
+
+  #code-input {
+    flex: 1;
+    background: var(--bg);
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 16px;
+    resize: none;
+    line-height: 1.7;
+  }
+
+  .code-request-input {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+    background: var(--bg2);
+  }
+
+  .code-req-text {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+  }
+  .code-req-text::placeholder { color: var(--text3); }
+  .code-req-text:focus { border-color: var(--accent); }
+
+  .code-gen-btn {
+    padding: 8px 14px;
+    background: linear-gradient(135deg, var(--green), #22a36f);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .code-gen-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .code-gen-btn:disabled { opacity: 0.5; }
+
+  .code-output {
+    flex: 1;
+    overflow-y: auto;
+    background: #0d1117;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    white-space: pre-wrap;
+  }
+
+  /* ── FEATURE PILLS SIDEBAR ── */
+  .feature-list {
+    padding: 4px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .feature-item {
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text3);
+    display: flex; align-items: center; gap: 8px;
+    cursor: default;
+  }
+  .feature-item .fi-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+    z-index: 9999;
+    display: flex; align-items: center; gap: 8px;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      transform: translateX(-100%);
+      z-index: 100;
+    }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
+    .menu-btn { display: flex; }
+    .suggestion-grid { grid-template-columns: 1fr; }
+    .code-area { grid-template-columns: 1fr; }
+    .code-panel { border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
+    .msg-content { max-width: 88%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">✦</div>
+    <span class="logo-text">RYNA AI</span>
+    <span class="logo-badge">v2.0</span>
+  </div>
+
+  <button class="new-chat-btn" onclick="newChat()">
+    <span>✦</span> New Chat
+  </button>
+
+  <div class="sidebar-section">Recent Chats</div>
+  <div class="chat-list" id="chat-list">
+    <div class="chat-item active" onclick="selectChat(this)">
+      <span class="ci-icon">💬</span>
+      <span class="ci-title">Welcome to RYNA AI</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section" style="margin-top:8px;">Capabilities</div>
+  <div class="feature-list">
+    <div class="feature-item"><div class="fi-dot" style="background:var(--accent)"></div>Advanced Reasoning</div>
+    <div class="feature-item"><div class="fi-dot" style="background:var(--green)"></div>Code Generation</div>
+    <div class="feature-item"><div class="fi-dot" style="background:var(--purple)"></div>Image Creation</div>
+    <div class="feature-item"><div class="fi-dot" style="background:var(--pink)"></div>Data Analysis</div>
+    <div class="feature-item"><div class="fi-dot" style="background:var(--orange)"></div>Creative Writing</div>
+    <div class="feature-item"><div class="fi-dot" style="background:var(--accent2)"></div>Math & Science</div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-chat" onclick="switchMode('chat')">💬 Chat</button>
+      <button class="mode-tab" id="tab-image" onclick="switchMode('image')">🎨 Image</button>
+      <button class="mode-tab" id="tab-code" onclick="switchMode('code')">⌨️ Code</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="status-dot">🟢</div>
+      <div class="status-info">
+        <div class="s-name">RYNA AI</div>
+        <div class="s-model">Claude Opus · Online</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <button class="menu-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-title" id="topbar-title">RYNA AI — Intelligent Assistant</div>
+    <div class="topbar-actions">
+      <select class="model-select" id="model-select" title="Select Model">
+        <option value="claude-opus-4-5">Claude Opus 4</option>
+        <option value="claude-sonnet-4-5" selected>Claude Sonnet 4</option>
+        <option value="claude-haiku-4-5-20251001">Claude Haiku 4</option>
+      </select>
+      <button class="tb-btn" onclick="clearChat()">🗑 Clear</button>
+      <button class="tb-btn" onclick="exportChat()">⬇ Export</button>
+    </div>
+  </div>
+
+  <!-- CHAT VIEW -->
+  <div id="chat-view" class="active">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-glow">✦</div>
+        <h1>Halo! Aku RYNA AI</h1>
+        <p>Asisten AI canggih yang siap membantu apa saja — dari pertanyaan sulit, coding, analisis data, kreasi konten, hingga pembuatan gambar.</p>
+        <div class="suggestion-grid">
+          <div class="suggestion-card" onclick="useSuggestion(this)">
+            <div class="sc-icon">🧠</div>
+            <div>
+              <div class="sc-label">Jelaskan konsep sulit</div>
+              <div class="sc-desc">Teori relativitas Einstein dengan bahasa sederhana</div>
+            </div>
+          </div>
+          <div class="suggestion-card" onclick="useSuggestion(this)">
+            <div class="sc-icon">💻</div>
+            <div>
+              <div class="sc-label">Buat website lengkap</div>
+              <div class="sc-desc">Landing page modern dengan HTML, CSS, JS</div>
+            </div>
+          </div>
+          <div class="suggestion-card" onclick="useSuggestion(this)">
+            <div class="sc-icon">📊</div>
+            <div>
+              <div class="sc-label">Analisis & strategi bisnis</div>
+              <div class="sc-desc">Rencana bisnis startup teknologi 2025</div>
+            </div>
+          </div>
+          <div class="suggestion-card" onclick="useSuggestion(this)">
+            <div class="sc-icon">✍️</div>
+            <div>
+              <div class="sc-label">Tulis konten kreatif</div>
+              <div class="sc-desc">Cerita pendek, artikel, atau copy marketing</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrapper">
+        <div class="input-box">
+          <div class="input-toolbar">
+            <button class="tool-pill" onclick="insertTemplate('code')" title="Code Mode">⌨️ Code</button>
+            <button class="tool-pill" onclick="insertTemplate('analyze')" title="Analysis Mode">🔍 Analisis</button>
+            <button class="tool-pill" onclick="insertTemplate('write')" title="Writing Mode">✍️ Tulis</button>
+            <button class="tool-pill" onclick="insertTemplate('translate')" title="Translate">🌐 Terjemah</button>
+            <button class="tool-pill" onclick="insertTemplate('math')" title="Math">📐 Matematika</button>
+            <button class="tool-pill" onclick="switchMode('image')" title="Generate Image">🎨 Gambar</button>
+          </div>
+          <textarea id="user-input" rows="1" placeholder="Tanya apa saja... atau Shift+Enter untuk baris baru" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <div class="input-footer">
+            <div class="input-hint">
+              <kbd class="kbd">Enter</kbd> Kirim
+              <kbd class="kbd">Shift+Enter</kbd> Baris baru
+            </div>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">
+              <span>Kirim</span> <span>▶</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE VIEW -->
+  <div id="image-view">
+    <div class="image-gen-area">
+      <div class="image-gen-header">
+        <h2>🎨 AI Image Generator</h2>
+        <p>Deskripsikan gambar yang kamu inginkan — RYNA AI akan membuatnya</p>
+      </div>
+
+      <div class="image-prompt-bar">
+        <input type="text" class="image-prompt-input" id="img-prompt" placeholder="Contoh: sunset di Bali dengan warna oranye dramatis, ultra realistic..." onkeydown="if(event.key==='Enter') generateImage()" />
+        <button class="img-gen-btn" id="img-btn" onclick="generateImage()">
+          ✨ Generate
+        </button>
+      </div>
+
+      <div class="style-chips">
+        <span class="style-chip" onclick="addStyle(this)">🖼 Realistic</span>
+        <span class="style-chip" onclick="addStyle(this)">🎨 Oil Painting</span>
+        <span class="style-chip" onclick="addStyle(this)">🌌 Cyberpunk</span>
+        <span class="style-chip" onclick="addStyle(this)">🌸 Anime</span>
+        <span class="style-chip" onclick="addStyle(this)">🔮 Fantasy</span>
+        <span class="style-chip" onclick="addStyle(this)">📷 Cinematic</span>
+        <span class="style-chip" onclick="addStyle(this)">🎭 Watercolor</span>
+        <span class="style-chip" onclick="addStyle(this)">🤖 Sci-Fi</span>
+        <span class="style-chip" onclick="addStyle(this)">🌿 Nature</span>
+        <span class="style-chip" onclick="addStyle(this)">🏙 Urban</span>
+      </div>
+
+      <div class="image-result" id="image-result"></div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrapper" style="display:flex;gap:10px;">
+        <button class="tb-btn" style="flex:1;justify-content:center;" onclick="switchMode('chat')">💬 Kembali ke Chat</button>
+        <button class="tb-btn" style="flex:1;justify-content:center;border-color:var(--purple);color:var(--purple);" onclick="document.getElementById('img-prompt').focus()">🎨 Generate Lagi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE VIEW -->
+  <div id="code-view">
+    <div class="code-area">
+      <div class="code-panel">
+        <div class="code-panel-header">
+          📝 Code Editor
+          <select class="lang-select" id="lang-select">
+            <option>Python</option>
+            <option>JavaScript</option>
+            <option>TypeScript</option>
+            <option>HTML</option>
+            <option>CSS</option>
+            <option>Java</option>
+            <option>C++</option>
+            <option>Go</option>
+            <option>Rust</option>
+            <option>SQL</option>
+            <option>PHP</option>
+            <option>Swift</option>
+          </select>
+        </div>
+        <textarea id="code-input" placeholder="// Paste kode kamu di sini, atau ketik deskripsi di bawah untuk generate...
+// Contoh: buat function untuk sorting array"></textarea>
+        <div class="code-request-input">
+          <input type="text" class="code-req-text" id="code-request" placeholder="Describe what code to generate or what to do with your code..." onkeydown="if(event.key==='Enter') processCode()" />
+          <button class="code-gen-btn" id="code-gen-btn" onclick="processCode()">✦ Generate</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;overflow:hidden;">
+        <div class="code-panel-header">
+          ✦ AI Output
+          <button class="tb-btn" style="margin-left:auto;padding:3px 10px;font-size:11px;" onclick="copyCodeOutput()">Copy</button>
+          <button class="tb-btn" style="padding:3px 10px;font-size:11px;" onclick="useInChat()">Use in Chat</button>
+        </div>
+        <div class="code-output" id="code-output">// RYNA AI code output will appear here...</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── CONFIG ──
+// Change this to your deployed Vercel URL
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''  // local dev
+  : ''; // same origin — Vercel handles routing
+
+// ── STATE ──
+let messages = [];
+let chatHistory = [{ id: 1, title: 'Welcome to RYNA AI', messages: [] }];
+let currentChatId = 1;
+let isLoading = false;
+let currentMode = 'chat';
+
+// ── UTILS ──
+function showToast(msg, icon = '✓') {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span>${icon}</span> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function scrollToBottom() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+// ── SIDEBAR ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  ['chat','image','code'].forEach(m => {
+    document.getElementById(m+'-view').classList.remove('active');
+    document.getElementById('tab-'+m)?.classList.remove('active');
+  });
+  document.getElementById(mode+'-view').classList.add('active');
+  document.getElementById('tab-'+mode)?.classList.add('active');
+  document.getElementById('topbar-title').textContent = {
+    chat: 'RYNA AI — Intelligent Assistant',
+    image: 'RYNA AI — Image Generator',
+    code: 'RYNA AI — Code Assistant'
+  }[mode];
+}
+
+function newChat() {
+  messages = [];
+  currentChatId = Date.now();
+  const el = document.getElementById('messages');
+  el.innerHTML = `<div class="welcome" id="welcome-screen">
+    <div class="welcome-glow">✦</div>
+    <h1>New Chat</h1>
+    <p>Apa yang ingin kamu tanyakan atau buat hari ini?</p>
+  </div>`;
+  document.getElementById('user-input').value = '';
+  addChatToList('New Chat');
+  if (window.innerWidth <= 768) toggleSidebar();
+}
+
+function addChatToList(title) {
+  const list = document.getElementById('chat-list');
+  document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+  const item = document.createElement('div');
+  item.className = 'chat-item active';
+  item.innerHTML = `<span class="ci-icon">💬</span><span class="ci-title">${title.slice(0, 28)}</span>`;
+  item.onclick = () => selectChat(item);
+  list.prepend(item);
+}
+
+function selectChat(el) {
+  document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  if (window.innerWidth <= 768) toggleSidebar();
+}
+
+// ── TEMPLATES ──
+function insertTemplate(type) {
+  const templates = {
+    code: 'Buat kode ',
+    analyze: 'Analisis dan jelaskan: ',
+    write: 'Tulis ',
+    translate: 'Terjemahkan ke Bahasa Indonesia: ',
+    math: 'Selesaikan dan jelaskan langkah-langkah: '
+  };
+  const input = document.getElementById('user-input');
+  input.value = templates[type];
+  input.focus();
+  autoResize(input);
+}
+
+function useSuggestion(card) {
+  const label = card.querySelector('.sc-label').textContent;
+  const desc = card.querySelector('.sc-desc').textContent;
+  document.getElementById('user-input').value = desc;
+  autoResize(document.getElementById('user-input'));
+  sendMessage();
+}
+
+// ── CHAT ──
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const welcome = document.getElementById('welcome-screen');
+  if (welcome) welcome.remove();
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', text);
+  messages.push({ role: 'user', content: text });
+
+  // Update chat list title
+  if (messages.length === 1) {
+    const items = document.querySelectorAll('.chat-item');
+    if (items[0]) items[0].querySelector('.ci-title').textContent = text.slice(0, 28);
+  }
+
+  const typingId = addTypingIndicator();
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  try {
+    const model = document.getElementById('model-select').value;
+    const response = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+        model,
+        system: `You are RYNA AI, a highly advanced and intelligent assistant. You're helpful, knowledgeable, creative, and capable of handling any task. You can:
+- Answer any question, no matter how complex
+- Write and debug code in any programming language
+- Analyze data and provide insights
+- Write creative content (stories, articles, marketing copy)
+- Solve mathematical problems step by step
+- Explain complex concepts clearly
+- Help with research and analysis
+- Provide strategic advice and planning
+Always respond in the same language the user uses. Be thorough but concise. Format your responses with markdown when appropriate.`
+      })
+    });
+
+    removeTypingIndicator(typingId);
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API error');
+    }
+
+    const data = await response.json();
+    const reply = data.content[0]?.text || 'Maaf, ada kesalahan.';
+    messages.push({ role: 'assistant', content: reply });
+    addMessage('ai', reply);
+
+  } catch (err) {
+    removeTypingIndicator(typingId);
+    addMessage('ai', `❌ **Error:** ${err.message}\n\nPastikan backend Vercel sudah di-deploy dengan API key yang valid.`);
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById('messages');
+  const isAI = role === 'ai';
+
+  const wrapper = document.createElement('div');
+  wrapper.className = `msg-wrapper ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `msg-avatar ${role}`;
+  avatar.textContent = isAI ? '✦' : '👤';
+
+  const content = document.createElement('div');
+  content.className = 'msg-content';
+
+  const name = document.createElement('div');
+  name.className = 'msg-name';
+  name.textContent = isAI ? 'RYNA AI' : 'You';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+
+  if (isAI) {
+    // Parse markdown
+    const raw = marked.parse(text);
+    bubble.innerHTML = raw;
+    // Highlight code blocks
+    bubble.querySelectorAll('pre code').forEach(block => {
+      hljs.highlightElement(block);
+      // Add copy button
+      const btn = document.createElement('button');
+      btn.className = 'copy-code-btn';
+      btn.textContent = 'Copy';
+      btn.onclick = () => {
+        navigator.clipboard.writeText(block.textContent);
+        btn.textContent = '✓ Copied';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      };
+      block.parentElement.style.position = 'relative';
+      block.parentElement.appendChild(btn);
+    });
+  } else {
+    bubble.textContent = text;
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'msg-actions';
+  if (isAI) {
+    actions.innerHTML = `
+      <button class="msg-action-btn" onclick="copyMsg(this)">📋 Copy</button>
+      <button class="msg-action-btn" onclick="regenerate()">🔄 Ulangi</button>
+    `;
+  }
+
+  content.appendChild(name);
+  content.appendChild(bubble);
+  if (isAI) content.appendChild(actions);
+
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(content);
+  container.appendChild(wrapper);
+  scrollToBottom();
+}
+
+function addTypingIndicator() {
+  const id = 'typing-' + Date.now();
+  const container = document.getElementById('messages');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg-wrapper ai';
+  wrapper.id = id;
+  wrapper.innerHTML = `
+    <div class="msg-avatar ai">✦</div>
+    <div class="msg-content">
+      <div class="msg-name">RYNA AI</div>
+      <div class="msg-bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>`;
+  container.appendChild(wrapper);
+  scrollToBottom();
+  return id;
+}
+
+function removeTypingIndicator(id) {
+  document.getElementById(id)?.remove();
+}
+
+function copyMsg(btn) {
+  const bubble = btn.closest('.msg-content').querySelector('.msg-bubble');
+  navigator.clipboard.writeText(bubble.innerText);
+  btn.textContent = '✓ Copied';
+  setTimeout(() => btn.textContent = '📋 Copy', 2000);
+}
+
+async function regenerate() {
+  if (messages.length < 2) return;
+  messages.pop();
+  const container = document.getElementById('messages');
+  const allMsgs = container.querySelectorAll('.msg-wrapper');
+  allMsgs[allMsgs.length - 1]?.remove();
+
+  const typingId = addTypingIndicator();
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  try {
+    const model = document.getElementById('model-select').value;
+    const response = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, model })
+    });
+    removeTypingIndicator(typingId);
+    const data = await response.json();
+    const reply = data.content[0]?.text || 'Error';
+    messages.push({ role: 'assistant', content: reply });
+    addMessage('ai', reply);
+  } catch (err) {
+    removeTypingIndicator(typingId);
+    addMessage('ai', '❌ Gagal regenerate.');
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+function clearChat() {
+  if (!confirm('Hapus semua pesan?')) return;
+  messages = [];
+  const el = document.getElementById('messages');
+  el.innerHTML = `<div class="welcome" id="welcome-screen">
+    <div class="welcome-glow">✦</div>
+    <h1>Chat Dibersihkan</h1>
+    <p>Mulai percakapan baru dengan RYNA AI.</p>
+  </div>`;
+  showToast('Chat dihapus');
+}
+
+function exportChat() {
+  if (!messages.length) { showToast('Tidak ada chat untuk diekspor', '⚠'); return; }
+  const text = messages.map(m => `[${m.role.toUpperCase()}]\n${m.content}`).join('\n\n---\n\n');
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ryna-chat-export.txt';
+  a.click();
+  showToast('Chat diekspor');
+}
+
+// ── IMAGE GENERATION ──
+let selectedStyles = [];
+
+function addStyle(chip) {
+  const style = chip.textContent.replace(/^[^ ]+ /, '').trim();
+  chip.classList.toggle('active');
+  if (chip.classList.contains('active')) {
+    selectedStyles.push(style);
+  } else {
+    selectedStyles = selectedStyles.filter(s => s !== style);
+  }
+}
+
+async function generateImage() {
+  const prompt = document.getElementById('img-prompt').value.trim();
+  if (!prompt) { showToast('Masukkan deskripsi gambar', '⚠'); return; }
+
+  const fullPrompt = [prompt, ...selectedStyles, 'high quality, detailed, 8k'].join(', ');
+  const result = document.getElementById('image-result');
+  const btn = document.getElementById('img-btn');
+
+  result.innerHTML = `<div class="img-card"><div class="img-loading"><div class="spinner"></div><div>Membuat gambar... ✨</div><div style="font-size:12px;color:var(--text3)">Ini mungkin butuh beberapa detik</div></div></div>`;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  try {
+    const response = await fetch(`${API_BASE}/api/imagine`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: fullPrompt })
+    });
+
+    const data = await response.json();
+    const url = data.url;
+
+    result.innerHTML = `
+      <div class="img-card">
+        <img src="${url}" alt="${prompt}" onload="this.parentElement.querySelector('.img-loading')?.remove()" onerror="handleImgError(this)" />
+        <div class="img-card-actions">
+          <button class="tb-btn" onclick="downloadImage('${url}', 'ryna-ai-image.jpg')" style="flex:1;justify-content:center;">⬇ Download</button>
+          <button class="tb-btn" onclick="document.getElementById('img-prompt').value='${prompt.replace(/'/g, "\\'")}'; generateImage();" style="flex:1;justify-content:center;border-color:var(--purple);color:var(--purple);">🔄 Ulangi</button>
+        </div>
+      </div>`;
+  } catch (err) {
+    result.innerHTML = `<div style="padding:20px;color:var(--pink);text-align:center;">❌ Gagal generate gambar: ${err.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✨ Generate';
+}
+
+function handleImgError(img) {
+  img.parentElement.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text2);">⚠️ Gambar gagal dimuat. Coba prompt lain.</div><div class="img-card-actions"><button class="tb-btn" onclick="generateImage()" style="width:100%;justify-content:center;">🔄 Coba lagi</button></div>`;
+}
+
+function downloadImage(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.target = '_blank';
+  a.click();
+}
+
+// ── CODE ASSISTANT ──
+async function processCode() {
+  const request = document.getElementById('code-request').value.trim();
+  const existingCode = document.getElementById('code-input').value.trim();
+  const lang = document.getElementById('lang-select').value;
+
+  if (!request && !existingCode) {
+    showToast('Masukkan kode atau deskripsi', '⚠');
+    return;
+  }
+
+  const btn = document.getElementById('code-gen-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Processing...';
+
+  const output = document.getElementById('code-output');
+  output.textContent = '// Generating...';
+
+  let prompt = '';
+  if (existingCode && request) {
+    prompt = `${request}\n\nExisting ${lang} code:\n\`\`\`${lang.toLowerCase()}\n${existingCode}\n\`\`\``;
+  } else if (request) {
+    prompt = `Generate ${lang} code: ${request}. Only return the code with brief comments, no explanation needed unless asked.`;
+  } else {
+    prompt = `Review and improve this ${lang} code:\n\`\`\`${lang.toLowerCase()}\n${existingCode}\n\`\`\``;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        system: `You are an expert ${lang} developer. Provide clean, efficient, well-commented code. Return only the code in a code block, then a brief explanation.`
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content[0]?.text || '// Error generating code';
+    output.textContent = reply;
+    hljs.highlightElement(output);
+
+  } catch (err) {
+    output.textContent = `// Error: ${err.message}`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✦ Generate';
+}
+
+function copyCodeOutput() {
+  const text = document.getElementById('code-output').textContent;
+  navigator.clipboard.writeText(text);
+  showToast('Kode disalin!');
+}
+
+function useInChat() {
+  const text = document.getElementById('code-output').textContent;
+  switchMode('chat');
+  document.getElementById('user-input').value = text;
+  autoResize(document.getElementById('user-input'));
+}
+
+// ── INIT ──
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('sidebar');
+    const btn = document.getElementById('menu-btn');
+    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !btn.contains(e.target)) {
+      sidebar.classList.remove('open');
+    }
+  }
+});
+
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+console.log('%c✦ RYNA AI', 'font-size:24px;font-weight:bold;background:linear-gradient(135deg,#4f8eff,#a78bfa);-webkit-background-clip:text;color:transparent;');
+console.log('%cAdvanced AI Assistant — Powered by Claude', 'color:#4f8eff;font-size:12px;');
+</script>
+</body>
+</html>
